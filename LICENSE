@@ -1,0 +1,200 @@
+AppPortal SDK & Developer Tools License
+Version 1.0 — August 4, 2026
+
+This AppPortal SDK & Developer Tools License ("License") is an agreement between
+AvantiPoint, LLC ("AvantiPoint") and the person or entity exercising the rights
+below ("you"). By downloading, copying, modifying, installing, or using the
+Software, you accept this License. If you act for an entity, you represent that
+you can bind it.
+
+1. Definitions
+
+"Authorized Plan" means a current AppPortal Free, paid, trial, evaluation, or
+Enterprise plan that permits use of the applicable Software.
+
+"Customer Application" means an application or service that you develop,
+control, or are authorized to maintain and that is configured to use AppPortal.
+
+"Service" means the hosted AppPortal services operated by or for AvantiPoint.
+
+"Software" means the AppPortal SDKs, command-line tools, developer tools, source
+code, object code, examples, and accompanying materials made available under
+this License. It excludes third-party components identified as subject to
+another license.
+
+2. License Grant
+
+Subject to this License and the terms of your Authorized Plan, AvantiPoint
+grants you a limited, non-exclusive, non-transferable, non-sublicensable,
+revocable license to:
+
+a. download, install, copy, and use the Software internally to develop, test,
+   build, operate, and maintain Customer Applications;
+b. modify source code made available to you, solely for your internal
+   integration, testing, and maintenance of Customer Applications;
+c. compile, link, and embed SDK components into a Customer Application; and
+d. reproduce and distribute compiled or object-code SDK components only as an
+   inseparable part of a Customer Application and only as needed for authorized
+   end users to use that Customer Application.
+
+You may use an AppPortal CLI or other developer tool in your internal developer
+workstations, build systems, and CI/CD environments. You may permit your
+employees and contractors to exercise these rights on your behalf if they are
+bound to protect the Software and you remain responsible for them.
+
+3. Conditions and Restrictions
+
+Except where this License expressly permits it, you may not:
+
+a. distribute, publish, sublicense, sell, rent, lease, host, or make available
+   the Software, its source code, a modified fork, or a substantial portion as a
+   standalone product, package, repository, download, or service;
+b. use the Software to provide a competing telemetry, observability,
+   app-operations, messaging, distribution, or developer-tools service;
+c. use the Software with an unauthorized service, impersonate AppPortal, or
+   redirect its protocols to a competing backend;
+d. circumvent or disable authentication, billing, entitlements, usage limits,
+   retention, safety controls, or technical restrictions;
+e. share credentials between unrelated customers or use a credential outside
+   its authorized application, tenant, or purpose;
+f. remove or obscure copyright, attribution, license, or proprietary notices;
+g. reverse engineer, decompile, or disassemble object code except to the limited
+   extent applicable law does not permit that restriction;
+h. disclose non-public benchmarks or security-test results in a misleading
+   manner or without giving AvantiPoint a reasonable opportunity to verify
+   them; or
+i. use the Software in violation of the AppPortal Acceptable Use Policy
+   (https://appportal.io/legal/acceptable-use), law, or third-party rights.
+
+Source availability does not make the Software open source. No rights are
+granted under the MIT License or another open-source license unless a particular
+third-party file or component expressly says otherwise.
+
+4. Authorized Plans and Service Terms
+
+The Software is licensed for use with an Authorized Plan, including a qualifying
+Free plan. Plan features, limits, and eligibility apply. Use of the Service is
+also governed by the AppPortal Terms of Use (https://appportal.io/terms),
+Privacy Policy (https://appportal.io/privacy), and applicable order or
+Enterprise agreement.
+
+Software behavior may preserve, back off, discard, or purge device-side
+telemetry in response to authenticated AppPortal service dispositions. Those
+behaviors and default queue limits are described in the Terms and Software
+documentation. Device queues are best-effort delivery buffers, not backups.
+
+5. Third-Party Components
+
+The Software may contain or depend on third-party software, sample code, or
+platform libraries. A third-party component remains governed by its identified
+license, notices, and terms. This License applies only to AvantiPoint's rights
+in the Software and does not restrict rights granted directly by a third-party
+license.
+
+6. Ownership and Feedback
+
+AvantiPoint and its licensors retain all right, title, and interest in the
+Software, Service, documentation, designs, trademarks, and related intellectual
+property. No ownership transfers to you. Rights not expressly granted are
+reserved.
+
+If you voluntarily provide feedback, you grant AvantiPoint a perpetual,
+worldwide, irrevocable, sublicensable, royalty-free right to use and commercialize
+it without restriction or attribution. Do not provide feedback you are not
+authorized to license.
+
+7. Updates and Compatibility
+
+AvantiPoint may update, replace, deprecate, or discontinue Software or Service
+interfaces. Unless an Enterprise agreement says otherwise, AvantiPoint has no
+obligation to provide maintenance, support, source access, updates,
+compatibility, or a particular release.
+
+You are responsible for selecting and testing SDK versions, retention settings,
+platform permissions, and release behavior in each Customer Application.
+
+8. Confidential and Pre-Release Materials
+
+Non-public source, credentials, roadmaps, test builds, and documentation
+identified as confidential or reasonably understood to be confidential are
+AvantiPoint Confidential Information. You must protect them using at least
+reasonable care and use them only for the authorized evaluation or development
+purpose.
+
+Pre-release Software may be incomplete, unstable, insecure, or changed without
+notice and must not be used in production unless AvantiPoint expressly
+authorizes that use.
+
+9. Term and Termination
+
+This License begins when you first accept or use the Software and continues
+while you comply with it. It automatically terminates if you materially breach
+it or no longer have an Authorized Plan, subject to any paid-through access or
+cure right in the applicable Service agreement.
+
+Upon termination, you must stop new use, copying, modification, and distribution
+and delete standalone copies under your control. You do not have to recall a
+Customer Application lawfully distributed before termination, but no continuing
+Service access is granted and you may not distribute new copies containing the
+Software.
+
+Sections that by their nature should survive—including restrictions, ownership,
+disclaimers, liability, indemnity, and governing law—survive termination.
+
+10. Warranty Disclaimer
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS" AND
+"AS AVAILABLE," WITH ALL FAULTS. AVANTIPOINT DISCLAIMS ALL EXPRESS, IMPLIED,
+STATUTORY, AND OTHER WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, SECURITY, AVAILABILITY,
+AND ERROR-FREE OR UNINTERRUPTED OPERATION.
+
+11. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, AVANTIPOINT WILL NOT BE LIABLE FOR
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, CONSEQUENTIAL, OR PUNITIVE DAMAGES,
+OR FOR LOST PROFITS, REVENUE, DATA, GOODWILL, OR BUSINESS INTERRUPTION, ARISING
+FROM THE SOFTWARE.
+
+FOR A FREE PLAN, AVANTIPOINT'S AGGREGATE LIABILITY ARISING FROM THE SOFTWARE IS
+ZERO DOLLARS, EXCEPT TO THE MINIMUM EXTENT LIABILITY CANNOT LEGALLY BE EXCLUDED.
+FOR ANY OTHER PLAN, AVANTIPOINT'S AGGREGATE LIABILITY WILL NOT EXCEED THE
+GREATER OF US $100 OR THE FEES PAID TO AVANTIPOINT FOR THE AFFECTED SERVICE
+DURING THE THREE MONTHS BEFORE THE EVENT GIVING RISE TO THE CLAIM. AN ENTERPRISE
+AGREEMENT MAY STATE A DIFFERENT CAP.
+
+12. Indemnity
+
+You will defend, indemnify, and hold harmless AvantiPoint and its affiliates,
+personnel, and contractors from third-party claims, losses, liabilities, and
+reasonable costs arising from your Customer Application, data collection,
+content, distribution, breach of this License, violation of law, or infringement
+of third-party rights.
+
+13. Export and Government Use
+
+You must comply with applicable export-control, sanctions, and import laws and
+may not use or provide the Software where prohibited. The Software is commercial
+computer software and commercial documentation developed exclusively at private
+expense.
+
+14. Governing Law and General Terms
+
+Wyoming law governs this License without regard to conflict-of-law rules. The
+state and federal courts serving Sheridan County, Wyoming have exclusive
+jurisdiction, and each party waives trial by jury to the extent permitted by law.
+
+You may not assign this License without AvantiPoint's written consent.
+AvantiPoint may assign it with the related business or assets. If a provision is
+unenforceable, it will be modified only as needed and the rest remains effective.
+A waiver must be written and is not a continuing waiver. This License and the
+applicable Service agreement are the complete agreement for the Software; if
+they conflict, a signed Enterprise agreement controls, followed by an order, the
+Terms of Use, and this License.
+
+15. Contact
+
+AvantiPoint, LLC
+30 N Gould Street, Suite 22434
+Sheridan, WY 82801, United States
+support@appportal.io
