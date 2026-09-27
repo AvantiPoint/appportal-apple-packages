@@ -24,10 +24,37 @@ Each framework includes its device/simulator variants and privacy manifest.
 
 ```swift
 import AppPortalTelemetry
+import SwiftUI
 
-AppPortal.start("<app-credential>")
-AppPortal.identify(userId: "customer-42", traits: ["accountTier": "growth"])
+@main
+@MainActor
+enum StoreEntryPoint {
+    static func main() {
+        AppPortal.start("<app-credential>")
+        StoreApp.main()
+    }
+}
+
+// Your existing SwiftUI App has no @main attribute; StoreEntryPoint owns startup.
+struct StoreApp: App {
+    var body: some Scene { WindowGroup { Text("Store") } }
+}
+```
+
+For UIKit or AppKit, initialize in your entry point before `UIApplicationMain` or
+`NSApplicationMain`. The SDK owns lifecycle observation, cold/warm startup timing, crash capture
+and durable background delivery. Native initialization includes framework startup in the measured
+interval; no application stopwatch, lifecycle forwarding or flush call is required. Choose navigation
+observation separately for your app's navigation system.
+
+When your consent policy permits collection, grant consent through `AppPortal.grantConsent()`
+or set `options.initialConsentState = .granted` in the root configuration closure. When the app knows
+the user, supply its chosen identifier. A separate name or profile is not required:
+
+```swift
+AppPortal.identify(userId: "customer-42")
 AppPortal.trackEvent("item.saved", properties: ["category": "favorites"])
+AppPortal.clearUser() // On sign-out.
 ```
 
 For manual installation, download `AppPortalApple-<version>.zip` from the same release, unzip it,
