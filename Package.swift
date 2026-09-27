@@ -11,9 +11,9 @@ let package = Package(
         .library(name: "AppPortalSmartLinks", targets: ["AppPortalTelemetry", "AppPortalSmartLinks"])
     ],
     targets: [
-        .binaryTarget(name: "AppPortalTelemetry", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.169-g867c40caf4/AppPortalTelemetry-3.0.169-g867c40caf4.xcframework.zip", checksum: "7274e9ac419b87cf6cad77cadb4989aeaa3f8f7438fc154f795b74e36eb31341"),
-        .binaryTarget(name: "AppPortalMessaging", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.169-g867c40caf4/AppPortalMessaging-3.0.169-g867c40caf4.xcframework.zip", checksum: "135c07b499c76f9954db60c1a6941a6bdacf0c828fab7732a3d827b3331c223a"),
-        .binaryTarget(name: "AppPortalLocation", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.169-g867c40caf4/AppPortalLocation-3.0.169-g867c40caf4.xcframework.zip", checksum: "247b6adba837c40c5d4e9d4907f2c684a327587274c393b159885fd017d3cb7d"),
-        .binaryTarget(name: "AppPortalSmartLinks", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.169-g867c40caf4/AppPortalSmartLinks-3.0.169-g867c40caf4.xcframework.zip", checksum: "6ff9aa23dd5dbd2461f0e4d4c2a062b4fb841b5ca4e08987b9a880c67fa6269d")
+        .binaryTarget(name: "AppPortalTelemetry", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.174-g932ff14073/AppPortalTelemetry-3.0.174-g932ff14073.xcframework.zip", checksum: "9355ea8a91cf6562562c5d55b68d546e0547457ec3ea9fff7d9bd52b31a5a133"),
+        .binaryTarget(name: "AppPortalMessaging", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.174-g932ff14073/AppPortalMessaging-3.0.174-g932ff14073.xcframework.zip", checksum: "56121e3ffdeb6dbe616b3c3d62c04340ec0b5a4d09a290fa7289805ffef33bfa"),
+        .binaryTarget(name: "AppPortalLocation", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.174-g932ff14073/AppPortalLocation-3.0.174-g932ff14073.xcframework.zip", checksum: "c3f2283380dc78698916881c8ee6aa68deb26b50ae82d4c6d4a536a5ceeb2f71"),
+        .binaryTarget(name: "AppPortalSmartLinks", url: "https://github.com/AvantiPoint/appportal-apple-packages/releases/download/v3.0.174-g932ff14073/AppPortalSmartLinks-3.0.174-g932ff14073.xcframework.zip", checksum: "6d00bec6da986be65f6a0dee16c71f0304311ae4031106d19b9119f3a524a817")
     ]
 )
