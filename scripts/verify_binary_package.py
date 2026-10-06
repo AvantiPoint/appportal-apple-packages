@@ -15,6 +15,7 @@ import zipfile
 
 REPOSITORY = 'https://github.com/AvantiPoint/appportal-apple-packages'
 MODULES = ('AppPortalTelemetry', 'AppPortalMessaging', 'AppPortalLocation', 'AppPortalSmartLinks')
+MANIFEST_PLATFORMS = {'.iOS(.v13)', '.macOS(.v11)', '.tvOS(.v13)', '.watchOS(.v6)', '.macCatalyst(.v13)'}
 SDK_TARGETS = {
     ('ios', ''): ('iphoneos', 'ios13.0'),
     ('ios', 'simulator'): ('iphonesimulator', 'ios13.0-simulator'),
@@ -37,8 +38,13 @@ def require(condition, message):
         raise ValueError(message)
 
 def parse_manifest(text):
-    require(not re.search(r'\.(?:target|executableTarget|testTarget|plugin|package)\s*\(', text),
+    require(not re.search(r'\.(?:target|executableTarget|testTarget|systemLibrary|macro|plugin|package)\s*\(', text),
             'Public package must contain only binary targets and no source dependencies')
+    platforms = re.findall(r'platforms\s*:\s*\[([^\]]*)\]', text)
+    require(len(platforms) == 1, 'Expected one advertised platform declaration')
+    declared = re.sub(r'\s+', '', platforms[0]).rstrip(',').split(',')
+    require(len(declared) == len(MANIFEST_PLATFORMS) and set(declared) == MANIFEST_PLATFORMS,
+            'Manifest platform minimums differ from the advertised support matrix')
     matches = re.findall(r'\.binaryTarget\(name: "([^"]+)", url: "([^"]+)", checksum: "([0-9a-f]{64})"\)', text)
     require(len(matches) == 4 and text.count('.binaryTarget(') == 4, 'Expected four pinned binary targets')
     require({m[0] for m in matches} == set(MODULES), 'Unexpected binary modules')
@@ -67,7 +73,7 @@ def validate_archive(path, module):
             require(name.startswith(root) and '..' not in parts and '\\' not in name,
                     'Unsafe archive path or unexpected root')
             lower = name.lower()
-            require(not lower.endswith(('.swift', '.m', '.mm', '.c', '.cc', '.cpp', '.private.swiftinterface', '.abi.json'))
+            require(not lower.endswith(('.swift', '.m', '.mm', '.c', '.cc', '.cpp', '.private.swiftinterface', '.abi.json', '.swiftsourceinfo'))
                     and not (lower.endswith('.swiftmodule') and not entry.is_dir())
                     and 'sources' not in [part.lower() for part in parts],
                     'Implementation source or private compiler metadata in binary archive')
@@ -94,8 +100,51 @@ def validate_archive(path, module):
                 require('-enable-library-evolution' in archive.read(name).decode(), 'Library evolution is disabled')
             privacy = [n for n in names if n.startswith(framework) and n.endswith('/PrivacyInfo.xcprivacy')]
             require(len(privacy) == 1, 'Missing or ambiguous framework privacy manifest')
-            plistlib.loads(archive.read(privacy[0]))
+            validate_privacy_manifest(plistlib.loads(archive.read(privacy[0])))
         return libraries
+
+def validate_privacy_manifest(privacy):
+    # Validate the packaging schema, not the accuracy or legal sufficiency of disclosures.
+    keys = {'NSPrivacyTracking', 'NSPrivacyTrackingDomains', 'NSPrivacyCollectedDataTypes', 'NSPrivacyAccessedAPITypes'}
+    require(isinstance(privacy, dict) and set(privacy) == keys, 'Expected privacy manifest dictionary and known keys')
+    require(type(privacy['NSPrivacyTracking']) is bool, 'Privacy tracking must be a Boolean')
+    def strings(value):
+        return isinstance(value, list) and all(isinstance(item, str) and item for item in value)
+    require(strings(privacy['NSPrivacyTrackingDomains']), 'Privacy tracking domains must be an array of strings')
+    schemas = (
+        ('NSPrivacyCollectedDataTypes', {
+            'NSPrivacyCollectedDataType': str, 'NSPrivacyCollectedDataTypeLinked': bool,
+            'NSPrivacyCollectedDataTypeTracking': bool, 'NSPrivacyCollectedDataTypePurposes': list}),
+        ('NSPrivacyAccessedAPITypes', {'NSPrivacyAccessedAPIType': str, 'NSPrivacyAccessedAPITypeReasons': list}),
+    )
+    for key, schema in schemas:
+        require(isinstance(privacy[key], list), key + ' must be an array of dictionaries')
+        for entry in privacy[key]:
+            require(isinstance(entry, dict) and set(entry) == set(schema), 'Invalid privacy declaration keys')
+            for field, kind in schema.items():
+                value = entry[field]
+                require(type(value) is kind, field + ' has an invalid property-list type')
+                if kind is list:
+                    require(bool(value) and strings(value), field + ' must be a nonempty array of strings')
+                elif kind is str:
+                    require(bool(value), field + ' must be nonempty')
+
+def validate_architecture_sets(slices):
+    # A product cannot support an architecture absent from its shared Telemetry runtime.
+    expected = {(i['SupportedPlatform'], i.get('SupportedPlatformVariant', '')): set(i['SupportedArchitectures'])
+                for i in slices[MODULES[0]]}
+    for module in MODULES:
+        actual = {(i['SupportedPlatform'], i.get('SupportedPlatformVariant', '')): set(i['SupportedArchitectures'])
+                  for i in slices[module]}
+        require(actual == expected and all(actual.values()), module + ': architecture sets must match Telemetry')
+
+def validate_linked_dependencies(module, links):
+    # otool -L includes the framework's own install name as well as linked dependencies.
+    declared = set(re.findall(r'(AppPortal[A-Za-z0-9_]+)\.framework/', links))
+    allowed = {module, MODULES[0]}
+    require(declared <= allowed, module + ': undeclared AppPortal framework dependency')
+    if module != MODULES[0]:
+        require('@rpath/AppPortalTelemetry.framework/' in links, 'Shared runtime dependency missing')
 
 def clean_environment(root):
     home = root / 'home'
@@ -150,6 +199,7 @@ def verify(manifest_path, temporary_parent):
             require(release['checksums'][url.rsplit('/', 1)[-1]] == checksum, 'Release checksum mismatch')
             slices[module] = validate_archive(archive, module)
             run('ditto', '-x', '-k', str(archive), str(frameworks))
+        validate_architecture_sets(slices)
         for item in slices[MODULES[0]]:
             platform = (item['SupportedPlatform'], item.get('SupportedPlatformVariant', ''))
             sdk, suffix = SDK_TARGETS[platform]
@@ -164,9 +214,7 @@ def verify(manifest_path, temporary_parent):
                 binary = framework_parent / (module + '.framework') / module
                 require(set(run('lipo', '-archs', str(binary)).split()) == set(match['SupportedArchitectures']), 'Binary architecture mismatch')
                 links = run('otool', '-L', str(binary))
-                require('AppPortalTelemetryXC.framework' not in links, 'Unexpected .NET bridge dependency')
-                if module != MODULES[0]:
-                    require('@rpath/AppPortalTelemetry.framework/' in links, 'Shared runtime dependency missing')
+                validate_linked_dependencies(module, links)
                 search += ['-F', str(framework_parent)]
             source = root / 'SliceConsumer.swift'
             source.write_text('\n'.join('import ' + m for m in MODULES) + '\npublic func smoke() {\n' + '\n'.join(SMOKE.values()) + '\n}\n')
