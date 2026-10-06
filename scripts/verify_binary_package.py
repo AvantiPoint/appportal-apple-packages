@@ -185,7 +185,7 @@ def cleanup_workspace(root):
                 try:
                     if entry.is_symlink():
                         path.unlink()
-                    elif entry.stat(follow_symlinks=False).st_dev != device or os.path.ismount(path):
+                    elif path.lstat().st_dev != device or os.path.ismount(path):
                         complete = False
                     elif entry.is_dir(follow_symlinks=False):
                         complete = remove(path) and complete
