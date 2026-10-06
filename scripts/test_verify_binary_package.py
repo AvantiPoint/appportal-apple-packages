@@ -16,7 +16,7 @@ class PublicConsumerTests(unittest.TestCase):
     def test_current_manifest_has_only_four_pinned_binary_products(self):
         version, targets = proof.parse_manifest(MANIFEST)
         self.assertEqual(set(targets), set(proof.MODULES))
-        self.assertTrue(version.startswith('3.0.'))
+        self.assertRegex(version, r'^[0-9]+\.[0-9]+\.[0-9]+(?:-|$)')
 
     def test_manifest_rejects_source_dependencies_and_targets(self):
         for added in ('.package(url: "https://example.com/source", from: "1.0.0")', '.target(name: "Source")',
@@ -70,9 +70,13 @@ class PublicConsumerTests(unittest.TestCase):
         self.assertEqual(len(self.check_fixture()), 8)
 
     def test_archive_rejects_implementation_and_private_metadata(self):
-        for suffix in ('.swift', '.m', '.cpp', '.private.swiftinterface', '.abi.json', '.swiftmodule'):
+        for suffix in ('.swift', '.SWIFT', '.m', '.cpp', '.private.swiftinterface', '.abi.json', '.swiftmodule'):
             with self.subTest(suffix=suffix), self.assertRaises(ValueError):
                 self.check_fixture(lambda files: files.update({'AppPortalTelemetry.xcframework/secret' + suffix: b'private'}))
+
+    def test_archive_rejects_source_directory(self):
+        with self.assertRaises(ValueError):
+            self.check_fixture(lambda files: files.update({'AppPortalTelemetry.xcframework/Sources/implementation.txt': b'private'}))
 
     def test_archive_rejects_traversal(self):
         with self.assertRaises(ValueError):

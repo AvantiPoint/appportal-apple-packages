@@ -66,8 +66,10 @@ def validate_archive(path, module):
             parts = PurePosixPath(name).parts
             require(name.startswith(root) and '..' not in parts and '\\' not in name,
                     'Unsafe archive path or unexpected root')
-            require(not name.endswith(('.swift', '.m', '.mm', '.c', '.cc', '.cpp', '.private.swiftinterface', '.abi.json'))
-                    and not (name.endswith('.swiftmodule') and not entry.is_dir()),
+            lower = name.lower()
+            require(not lower.endswith(('.swift', '.m', '.mm', '.c', '.cc', '.cpp', '.private.swiftinterface', '.abi.json'))
+                    and not (lower.endswith('.swiftmodule') and not entry.is_dir())
+                    and 'sources' not in [part.lower() for part in parts],
                     'Implementation source or private compiler metadata in binary archive')
             if stat.S_ISLNK(entry.external_attr >> 16):
                 target = archive.read(entry).decode('utf-8')
@@ -162,6 +164,7 @@ def verify(manifest_path, temporary_parent):
                 binary = framework_parent / (module + '.framework') / module
                 require(set(run('lipo', '-archs', str(binary)).split()) == set(match['SupportedArchitectures']), 'Binary architecture mismatch')
                 links = run('otool', '-L', str(binary))
+                require('AppPortalTelemetryXC.framework' not in links, 'Unexpected .NET bridge dependency')
                 if module != MODULES[0]:
                     require('@rpath/AppPortalTelemetry.framework/' in links, 'Shared runtime dependency missing')
                 search += ['-F', str(framework_parent)]
