@@ -123,6 +123,10 @@ class PublicConsumerTests(unittest.TestCase):
         self.assertNotIn('repository:', workflow)
         self.assertNotIn('secrets.', workflow)
         self.assertIn('github.event.pull_request.head.repo.full_name == github.repository', workflow)
+        self.assertIn('runs-on: macos-26', workflow)
+        self.assertIn('DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer', workflow)
+        self.assertNotIn('MIC_GITHUB', workflow)
+        self.assertNotIn('macos-26-large', workflow)
 
 if __name__ == '__main__':
     unittest.main()

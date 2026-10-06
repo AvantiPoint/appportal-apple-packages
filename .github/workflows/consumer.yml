@@ -29,9 +29,12 @@ jobs:
   consume:
     name: Cold public consumer (macOS)
     needs: validate
-    # Never execute an untrusted fork's workflow on the managed macOS runner.
+    # Keep native qualification on trusted repository branches; portable checks cover forks.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: MIC_GITHUB_avantipoint
+    # Standard macOS runners are free for this public repository.
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
