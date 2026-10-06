@@ -1,5 +1,7 @@
 import importlib.util
 import copy
+import io
+from contextlib import redirect_stderr
 import os
 from pathlib import Path
 import plistlib
@@ -189,6 +191,39 @@ class PublicConsumerTests(unittest.TestCase):
             self.assertTrue(command[command.index(name) + 1].startswith(str(root) + '/'))
         for name in ('--disable-dependency-cache', '--disable-netrc', '--disable-keychain'):
             self.assertIn(name, command)
+
+    def test_workspace_cleanup_removes_only_its_files_and_symlinks(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            outside = parent / 'outside'
+            outside.mkdir()
+            (outside / 'keep').write_text('keep')
+            with proof.public_workspace(parent) as root:
+                (root / 'owned').write_text('owned')
+                (root / 'outside-link').symlink_to(outside, target_is_directory=True)
+            self.assertFalse(root.exists())
+            self.assertEqual((outside / 'keep').read_text(), 'keep')
+
+    def test_workspace_cleanup_never_enters_mounted_directories(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            root = parent / 'owned-workspace'
+            mount = root / 'sdk-mount'
+            mount.mkdir(parents=True)
+            (mount / 'RestoreVersion.plist').write_text('managed by Xcode')
+            (root / 'ordinary-file').write_text('remove')
+            with patch.object(proof.os.path, 'ismount', side_effect=lambda path: Path(path) == mount), redirect_stderr(io.StringIO()) as warnings:
+                proof.cleanup_workspace(root)
+            self.assertEqual((mount / 'RestoreVersion.plist').read_text(), 'managed by Xcode')
+            self.assertFalse((root / 'ordinary-file').exists())
+            self.assertIn('retained mounted', warnings.getvalue())
+
+    def test_cleanup_failure_does_not_hide_a_proof_failure(self):
+        with tempfile.TemporaryDirectory() as temporary, redirect_stderr(io.StringIO()):
+            with patch.object(proof.os, 'scandir', side_effect=OSError('read-only')):
+                with self.assertRaisesRegex(ValueError, 'proof failed'):
+                    with proof.public_workspace(Path(temporary)):
+                        raise ValueError('proof failed')
 
     def test_workflow_checks_out_only_public_repository_without_credentials(self):
         workflow = (Path(__file__).resolve().parent.parent / '.github/workflows/consumer.yml').read_text()
