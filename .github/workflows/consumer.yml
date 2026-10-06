@@ -1,0 +1,43 @@
+name: Public binary consumer
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-consumer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate consumer proof
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
+
+  consume:
+    name: Cold public consumer (macOS)
+    needs: validate
+    # Never execute an untrusted fork's workflow on the managed macOS runner.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: MIC_GITHUB_avantipoint
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Resolve and build using only public artifacts
+        # No credentials, source-repository checkout, signing identity, or shared cache.
+        # The verifier creates/removes only its own directory under RUNNER_TEMP.
+        run: /usr/bin/python3 scripts/verify_binary_package.py --temporary-parent "$RUNNER_TEMP"
