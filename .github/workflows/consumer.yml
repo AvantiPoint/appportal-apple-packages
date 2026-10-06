@@ -42,5 +42,5 @@ jobs:
           persist-credentials: false
       - name: Resolve and build using only public artifacts
         # No credentials, source-repository checkout, signing identity, or shared cache.
-        # The verifier creates/removes only its own directory under RUNNER_TEMP.
+        # Proof files stay in a unique RUNNER_TEMP directory; the ephemeral runner owns teardown.
         run: /usr/bin/python3 scripts/verify_binary_package.py --temporary-parent "$RUNNER_TEMP"

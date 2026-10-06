@@ -173,43 +173,15 @@ def download(url, path):
     with urllib.request.urlopen(url, timeout=90) as response:
         path.write_bytes(response.read())
 
-def cleanup_workspace(root):
-    # Xcode can mount read-only SDK images below TMPDIR. Never traverse a mount,
-    # another filesystem, or a directory symlink while cleaning our own workspace.
-    device = root.lstat().st_dev
-    def remove(directory):
-        complete = True
-        with os.scandir(directory) as entries:
-            for entry in entries:
-                path = Path(entry.path)
-                try:
-                    if entry.is_symlink():
-                        path.unlink()
-                    elif path.lstat().st_dev != device or os.path.ismount(path):
-                        complete = False
-                    elif entry.is_dir(follow_symlinks=False):
-                        complete = remove(path) and complete
-                    else:
-                        path.unlink()
-                except OSError:
-                    complete = False
-        if complete:
-            directory.rmdir()
-        return complete
-    try:
-        complete = remove(root)
-    except OSError:
-        complete = False
-    if not complete:
-        print('WARNING: retained mounted or unavailable temporary entries for runner teardown: ' + str(root), file=sys.stderr)
-
 @contextmanager
 def public_workspace(parent):
+    # The ephemeral CI runner owns teardown. Xcode may mount SDK images below the
+    # isolated HOME/TMPDIR, so the verifier must not recursively delete that tree.
     root = Path(tempfile.mkdtemp(prefix='appportal-public-consumer-', dir=parent))
     try:
         yield root
     finally:
-        cleanup_workspace(root)
+        print('Temporary proof directory retained for runner teardown: ' + str(root), file=sys.stderr)
 
 def verify(manifest_path, temporary_parent):
     manifest = manifest_path.read_text()
