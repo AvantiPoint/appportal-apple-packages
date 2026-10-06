@@ -140,6 +140,10 @@ def validate_architecture_sets(slices):
                   for i in slices[module]}
         require(actual == expected and all(actual.values()), module + ': architecture sets must match Telemetry')
 
+def linked_libraries_command(binary):
+    # otool otherwise selects the host architecture from universal binaries.
+    return ['otool', '-arch', 'all', '-L', str(binary)]
+
 def validate_linked_dependencies(module, links):
     # otool -L includes the framework's own install name as well as linked dependencies.
     declared = set(re.findall(r'(AppPortal[A-Za-z0-9_]+)\.framework/', links))
@@ -224,7 +228,7 @@ def verify(manifest_path, temporary_parent):
                 framework_parent = frameworks / (module + '.xcframework') / match['LibraryIdentifier']
                 binary = framework_parent / (module + '.framework') / module
                 require(set(run('lipo', '-archs', str(binary)).split()) == set(match['SupportedArchitectures']), 'Binary architecture mismatch')
-                links = run('otool', '-L', str(binary))
+                links = run(*linked_libraries_command(binary))
                 validate_linked_dependencies(module, links)
                 search += ['-F', str(framework_parent)]
             source = root / 'SliceConsumer.swift'

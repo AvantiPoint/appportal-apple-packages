@@ -157,6 +157,20 @@ class PublicConsumerTests(unittest.TestCase):
             with self.subTest(architectures=architectures), self.assertRaises(ValueError):
                 proof.validate_architecture_sets(changed)
 
+    def test_dependency_inspection_includes_non_host_architectures(self):
+        binary = Path('/proof/AppPortalMessaging.framework/AppPortalMessaging')
+        self.assertEqual(proof.linked_libraries_command(binary), ['otool', '-arch', 'all', '-L', str(binary)])
+        universal = """Messaging (architecture arm64):
+    @rpath/AppPortalMessaging.framework/AppPortalMessaging
+    @rpath/AppPortalTelemetry.framework/AppPortalTelemetry
+Messaging (architecture x86_64):
+    @rpath/AppPortalMessaging.framework/AppPortalMessaging
+    @rpath/AppPortalTelemetry.framework/AppPortalTelemetry
+    @rpath/AppPortalLocation.framework/AppPortalLocation
+"""
+        with self.assertRaisesRegex(ValueError, 'undeclared AppPortal framework'):
+            proof.validate_linked_dependencies('AppPortalMessaging', universal)
+
     def test_optional_products_cannot_link_sibling_frameworks(self):
         telemetry = '@rpath/AppPortalTelemetry.framework/AppPortalTelemetry (compatibility version 1.0.0)'
         for module in proof.MODULES:
